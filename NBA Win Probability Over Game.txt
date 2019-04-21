@@ -1,0 +1,35 @@
+library(nbastatR)
+library(gganimate)
+library(ggplot2)
+library(teamcolors)
+library(rlang)
+library(readr)
+
+#Choose Game
+winprob <- win_probability(c(0041800124))
+
+
+#Remove all missing values
+winprob <-na.omit(winprob)
+
+#Gets Teams colors
+nba_palette_1 <- league_palette("nba",1)
+
+
+#cumulative step plot
+ggplot() +
+     geom_line(data = winprob, aes(x = winprob$minuteGame, y = (winprob$pctWinProbAway), col = "PHI"),size=2) +
+     geom_line(data = winprob, aes(x = winprob$minuteGame, y = (winprob$pctWinProbHome), col = "BKN"),size=2) +
+     geom_vline(aes(xintercept = c(10, 20, 30, 40)), col = "grey") + geom_hline(yintercept=.50,linetype=2,col="grey")+
+     labs(title = "PHI vs BKN Win Probability Over Game",
+       subtitle = "Final PHI 112 - BKN 108", caption = "data via nbastatR 20 Apr 2019", col = "Team") + scale_color_manual(values = c("#061922","#ed174c"))+
+     theme_minimal() + scale_x_continuous(breaks = c(0, 10, 20, 30, 40), 
+                     labels = c("0", "10", "20", "30", "40"))+ scale_y_continuous(labels = scales::percent)+
+     theme(plot.title = element_text(size = 16, face = "bold"),
+	   plot.subtitle=element_text(size=12, color="black"),
+	   plot.caption=element_text(size=10, face="italic", color="black", vjust=-2),
+           axis.title.x = element_text(size = 8, face = "bold", hjust = 1, vjust = -1),axis.title.y = element_text(size = 8, face = "bold", hjust = .955),
+  	   panel.grid.minor.x = element_blank(),
+           panel.grid.minor.y = element_blank()) + xlab("minutes elasped") + ylab("win probability") + 
+	  	transition_reveal(winprob$minuteGame) 
+
